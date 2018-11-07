@@ -130,7 +130,7 @@ export HOSTCIDR=$CIDR
 # The network interface on the genesis node
 export NODE_NET_IFACE=$HOST_IFACE
 
-export TARGET_SITE="demo"
+export TARGET_SITE=${TARGET_SITE:-demo}
 set +x
 
 # Changes DNS servers in common-addresses.yaml to the system's DNS servers
@@ -163,21 +163,19 @@ PROXY_CONFIG_FILE="../../deployment_files/site/$TARGET_SITE/networks/common-addr
 SITE_DEFINITION_CONFIG_FILE="../../deployment_files/site/$TARGET_SITE/site-definition.yaml"
 
 if [[ ! -z $http_proxy ]]; then
-  echo "Using proxy http_proxy $http_proxy https_proxy $https_proxy no_proxy $no_proxy"
   sed -i "s/http:.*/http: ${http_proxy//\//\\/}/" $PROXY_CONFIG_FILE
   sed -i "s/https:.*/https: ${https_proxy//\//\\/}/" $PROXY_CONFIG_FILE
   sed -i "s/no_proxy:.*/no_proxy: ${no_proxy//\//\\/}/" $PROXY_CONFIG_FILE
-  sed -i "s/revision:.*/revision: v1.0${TARGET}/" $SITE_DEFINITION_CONFIG_FILE
-  sed -i "s/site-type:.*/site-type: single-node/" $SITE_DEFINITION_CONFIG_FILE
-  sed -i "s/name:.*/name: ${TARGET}/" $SITE_DEFINITION_CONFIG_FILE
+  sed -i "s/revision:.*/revision: v1.0${TARGET_SITE}/" $SITE_DEFINITION_CONFIG_FILE
+  sed -i "s/site_type:.*/site_type: single-node-proxy/" $SITE_DEFINITION_CONFIG_FILE
+  sed -i "s/name:.*/name: ${TARGET_SITE}-proxy/" $SITE_DEFINITION_CONFIG_FILE
 else
   sed -i "s/http:.*/http:/" $PROXY_CONFIG_FILE
   sed -i "s/https:.*/https:/" $PROXY_CONFIG_FILE
   sed -i "s/no_proxy:.*/no_proxy:/" $PROXY_CONFIG_FILE
-  sed -i "s/revision:.*/revision: v1.0${TARGET}/" $SITE_DEFINITION_CONFIG_FILE
-  sed -i "s/site-type:.*/site-type: single-node-proxy/" $SITE_DEFINITION_CONFIG_FILE
-  sed -i "s/name:.*/name: ${TARGET}-proxy/" $SITE_DEFINITION_CONFIG_FILE
-  sed -i "s/single-node-proxy$/single-node/" $SITE_DEFINITION_CONFIG_FILE
+  sed -i "s/revision:.*/revision: v1.0${TARGET_SITE}/" $SITE_DEFINITION_CONFIG_FILE
+  sed -i "s/site_type:.*/site_type: single-node/" $SITE_DEFINITION_CONFIG_FILE
+  sed -i "s/name:.*/name: ${TARGET_SITE}/" $SITE_DEFINITION_CONFIG_FILE
 fi
 
 echo ""
