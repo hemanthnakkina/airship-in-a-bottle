@@ -155,6 +155,31 @@ else
   sed -i "s/8.8.4.4/$NS2/" $DNS_CONFIG_FILE
 fi
 
+http_proxy=${http_proxy:-""}
+https_proxy=${https_proxy:-""}
+no_proxy=${no_proxy:-""}
+
+PROXY_CONFIG_FILE="../../deployment_files/site/$TARGET_SITE/networks/common-addresses.yaml"
+SITE_DEFINITION_CONFIG_FILE="../../deployment_files/site/$TARGET_SITE/site-definition.yaml"
+
+if [[ ! -z $http_proxy ]]; then
+  echo "Using proxy http_proxy $http_proxy https_proxy $https_proxy no_proxy $no_proxy"
+  sed -i "s/http:.*/http: ${http_proxy//\//\\/}/" $PROXY_CONFIG_FILE
+  sed -i "s/https:.*/https: ${https_proxy//\//\\/}/" $PROXY_CONFIG_FILE
+  sed -i "s/no_proxy:.*/no_proxy: ${no_proxy//\//\\/}/" $PROXY_CONFIG_FILE
+  sed -i "s/revision:.*/revision: v1.0${TARGET}/" $SITE_DEFINITION_CONFIG_FILE
+  sed -i "s/site-type:.*/site-type: single-node/" $SITE_DEFINITION_CONFIG_FILE
+  sed -i "s/name:.*/name: ${TARGET}/" $SITE_DEFINITION_CONFIG_FILE
+else
+  sed -i "s/http:.*/http:/" $PROXY_CONFIG_FILE
+  sed -i "s/https:.*/https:/" $PROXY_CONFIG_FILE
+  sed -i "s/no_proxy:.*/no_proxy:/" $PROXY_CONFIG_FILE
+  sed -i "s/revision:.*/revision: v1.0${TARGET}/" $SITE_DEFINITION_CONFIG_FILE
+  sed -i "s/site-type:.*/site-type: single-node-proxy/" $SITE_DEFINITION_CONFIG_FILE
+  sed -i "s/name:.*/name: ${TARGET}-proxy/" $SITE_DEFINITION_CONFIG_FILE
+  sed -i "s/single-node-proxy$/single-node/" $SITE_DEFINITION_CONFIG_FILE
+fi
+
 echo ""
 echo "Starting Airship deployment..."
 sleep 1
